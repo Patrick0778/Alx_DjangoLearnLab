@@ -7,8 +7,7 @@ def list_books(request):
     Function-based view to list all books.
     """
     books = Book.objects.all()
-    return render(request, 'list_books.html', {'books': books})
-
+    return render(request, 'relationship_app/list_books.html', {'books': books})
 class LibraryDetailView(DetailView):
     """
     Class-based view to display details of a specific library.
