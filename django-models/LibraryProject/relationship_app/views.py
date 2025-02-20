@@ -1,9 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.detail import DetailView
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import user_passes_test, permission_required
 from .models import Book, Library, UserProfile
+from django.contrib.auth.models import Permission
 
 # Existing Function-Based View for Listing Books
 def list_books(request):
@@ -97,3 +98,43 @@ def member_view(request):
     View accessible only to Member users.
     """
     return render(request, 'relationship_app/member_view.html')
+
+# ===============================
+# Book Management Views with Permissions
+# ===============================
+
+@permission_required('relationship_app.add_book')
+def add_book(request):
+    """
+    View to allow authorized users to add a book.
+    """
+    if request.method == "POST":
+        title = request.POST.get('title')
+        author_id = request.POST.get('author')
+        book = Book.objects.create(title=title, author_id=author_id)
+        return redirect('list_books')
+    return render(request, 'relationship_app/add_book.html')
+
+@permission_required('relationship_app.change_book')
+def edit_book(request, book_id):
+    """
+    View to allow authorized users to edit a book.
+    """
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == "POST":
+        book.title = request.POST.get('title')
+        book.author_id = request.POST.get('author')
+        book.save()
+        return redirect('list_books')
+    return render(request, 'relationship_app/edit_book.html', {'book': book})
+
+@permission_required('relationship_app.delete_book')
+def delete_book(request, book_id):
+    """
+    View to allow authorized users to delete a book.
+    """
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == "POST":
+        book.delete()
+        return redirect('list_books')
+    return render(request, 'relationship_app/delete_book.html', {'book': book})
