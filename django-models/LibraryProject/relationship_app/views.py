@@ -3,9 +3,9 @@ from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.contrib.auth.decorators import user_passes_test, permission_required
+from django.contrib.auth.decorators import permission_required
 from .models import Book, Library, UserProfile
-from .forms import BookForm  # Ensure this form exists in forms.py
+from .forms import BookForm  # Ensure you have forms.py
 from django.contrib.auth.models import Permission
 
 # ===============================
@@ -21,7 +21,7 @@ def add_book(request):
         form = BookForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect(reverse('list_books'))  # Better practice for URL handling
+            return redirect(reverse('list_books'))  # Redirect after adding book
     else:
         form = BookForm()
     return render(request, 'relationship_app/add_book.html', {'form': form})
@@ -36,7 +36,7 @@ def edit_book(request, book_id):
         form = BookForm(request.POST, instance=book)
         if form.is_valid():
             form.save()
-            return redirect(reverse('list_books'))
+            return redirect(reverse('list_books'))  # Redirect after editing book
     else:
         form = BookForm(instance=book)
     return render(request, 'relationship_app/edit_book.html', {'form': form, 'book': book})
@@ -49,5 +49,5 @@ def delete_book(request, book_id):
     book = get_object_or_404(Book, id=book_id)
     if request.method == "POST":
         book.delete()
-        return redirect(reverse('list_books'))
+        return redirect(reverse('list_books'))  # Redirect after deleting book
     return render(request, 'relationship_app/delete_book.html', {'book': book})
