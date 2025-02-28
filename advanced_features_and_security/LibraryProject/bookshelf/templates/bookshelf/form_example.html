@@ -1,0 +1,85 @@
+{% extends 'bookshelf/base.html' %} {% block title %}Secure Form Example{%
+endblock %} {% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card mt-5">
+        <div class="card-header bg-primary text-white">
+          <h3 class="card-title">Secure Form Example</h3>
+        </div>
+        <div class="card-body">
+          <!-- SECURITY: CSRF token included to protect against CSRF attacks -->
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- Display non-field errors -->
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Name field -->
+            <div class="form-group mb-3">
+              <label for="{{ form.name.id_for_label }}">Name:</label>
+              {{ form.name }} {% if form.name.errors %}
+              <div class="text-danger">
+                {% for error in form.name.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Email field -->
+            <div class="form-group mb-3">
+              <label for="{{ form.email.id_for_label }}">Email:</label>
+              {{ form.email }} {% if form.email.errors %}
+              <div class="text-danger">
+                {% for error in form.email.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Message field -->
+            <div class="form-group mb-3">
+              <label for="{{ form.message.id_for_label }}">Message:</label>
+              {{ form.message }} {% if form.message.errors %}
+              <div class="text-danger">
+                {% for error in form.message.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Submit button -->
+            <div class="form-group mt-4">
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+
+          {% if submitted %}
+          <div class="alert alert-success mt-4">
+            <p>
+              Form submitted successfully! All input has been properly
+              sanitized.
+            </p>
+          </div>
+          {% endif %}
+        </div>
+        <div class="card-footer">
+          <p>
+            <strong>Security Note:</strong> This form implements proper
+            validation, sanitization, and CSRF protection.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

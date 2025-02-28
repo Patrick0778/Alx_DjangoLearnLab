@@ -1,0 +1,37 @@
+{% extends 'relationship_app/base.html' %} {% block content %}
+<div class="book-list-container">
+  <div class="header-actions">
+    <h2>Book List</h2>
+    {% if can_add %}
+    <a href="{% url 'relationship_app:book_add' %}" class="action-button"
+      >Add New Book</a
+    >
+    {% endif %}
+  </div>
+
+  <div class="book-grid">
+    {% for book in books %}
+    <div class="book-card">
+      <h3>{{ book.title }}</h3>
+      <p>Author: {{ book.author.name }}</p>
+      <div class="book-actions">
+        <a href="{% url 'relationship_app:book_detail' book.pk %}"
+          >View Details</a
+        >
+        {% if can_edit %}
+        <a href="{% url 'relationship_app:book_edit' book.pk %}">Edit</a>
+        {% endif %} {% if can_delete %}
+        <a
+          href="{% url 'relationship_app:book_delete' book.pk %}"
+          class="delete-action"
+          >Delete</a
+        >
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <p>No books available.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

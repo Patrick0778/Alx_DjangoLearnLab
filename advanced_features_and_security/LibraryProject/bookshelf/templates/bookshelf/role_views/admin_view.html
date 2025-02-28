@@ -1,0 +1,26 @@
+{% extends 'relationship_app/base.html' %} {% block content %}
+<div class="admin-dashboard">
+  <h2>{{ title }}</h2>
+  <div class="stats-panel">
+    <div class="stat-card">
+      <h3>Users</h3>
+      <p class="stat-number">{{ user_count }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>Books</h3>
+      <p class="stat-number">{{ book_count }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>Libraries</h3>
+      <p class="stat-number">{{ library_count }}</p>
+    </div>
+  </div>
+  <div class="admin-actions">
+    <h3>Management Actions</h3>
+    <ul>
+      <li><a href="{% url 'relationship_app:book_add' %}">Add New Book</a></li>
+      <li><a href="{% url 'relationship_app:book_list' %}">Manage Books</a></li>
+    </ul>
+  </div>
+</div>
+{% endblock %}
