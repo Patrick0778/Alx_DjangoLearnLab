@@ -19,6 +19,8 @@ class BookAPITestCase(TestCase):
 
         self.book_url = f"/books/{self.book.id}/"
         self.book_create_url = "/books/create/"
+        self.book_update_url = f"/books/update/{self.book.id}/"
+        self.book_delete_url = f"/books/delete/{self.book.id}/"
 
     def test_list_books(self):
         """Test retrieving all books."""
@@ -34,7 +36,7 @@ class BookAPITestCase(TestCase):
 
     def test_create_book_authenticated(self):
         """Test creating a book when authenticated."""
-        self.client.force_authenticate(user=self.user)
+        self.client.login(username='testuser', password='testpass')  # Authenticate user
         data = {"title": "New Book", "publication_year": 2024, "author": self.author.id}
         response = self.client.post(self.book_create_url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -48,34 +50,47 @@ class BookAPITestCase(TestCase):
 
     def test_update_book_authenticated(self):
         """Test updating a book when authenticated."""
-        self.client.force_authenticate(user=self.user)
+        self.client.login(username='testuser', password='testpass')  # Authenticate user
         data = {"title": "Updated Book Title", "publication_year": 2025, "author": self.author.id}
-        response = self.client.put(f"/books/update/{self.book.id}/", data)
+        response = self.client.put(self.book_update_url, data, content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.book.refresh_from_db()
         self.assertEqual(self.book.title, "Updated Book Title")
 
+    def test_update_book_unauthenticated(self):
+        """Test updating a book without authentication (should fail)."""
+        data = {"title": "Updated Book Title", "publication_year": 2025, "author": self.author.id}
+        response = self.client.put(self.book_update_url, data, content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
     def test_delete_book_authenticated(self):
         """Test deleting a book when authenticated."""
-        self.client.force_authenticate(user=self.user)
-        response = self.client.delete(f"/books/delete/{self.book.id}/")
+        self.client.login(username='testuser', password='testpass')  # Authenticate user
+        response = self.client.delete(self.book_delete_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Book.objects.count(), 0)
 
-    def test_filter_books(self):
-        """Test filtering books by title."""
+    def test_delete_book_unauthenticated(self):
+        """Test deleting a book without authentication (should fail)."""
+        response = self.client.delete(self.book_delete_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_filter_books_authenticated(self):
+        """Test filtering books by title when authenticated."""
+        self.client.login(username='testuser', password='testpass')
         response = self.client.get("/books/?title=Test Book")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data[0]["title"], "Test Book")
 
-    def test_search_books(self):
-        """Test searching for books by title."""
+    def test_search_books_authenticated(self):
+        """Test searching for books by title when authenticated."""
+        self.client.login(username='testuser', password='testpass')
         response = self.client.get("/books/?search=Test")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data), 1)
 
-    def test_order_books(self):
-        """Test ordering books by publication_year."""
+    def test_order_books_authenticated(self):
+        """Test ordering books by publication_year when authenticated."""
+        self.client.login(username='testuser', password='testpass')
         response = self.client.get("/books/?ordering=publication_year")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
