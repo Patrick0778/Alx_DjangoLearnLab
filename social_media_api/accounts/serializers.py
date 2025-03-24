@@ -32,3 +32,18 @@ class UserLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid username or password.")
         token, created = Token.objects.get_or_create(user=user)
         return {'user': user, 'token': token.key}
+
+class UserSerializer(serializers.ModelSerializer):
+    """Serializer for retrieving user details, including follower/following counts."""
+    followers_count = serializers.SerializerMethodField()
+    following_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'bio', 'profile_picture', 'followers_count', 'following_count']
+
+    def get_followers_count(self, obj):
+        return obj.followers.count()
+
+    def get_following_count(self, obj):
+        return obj.following.count()
