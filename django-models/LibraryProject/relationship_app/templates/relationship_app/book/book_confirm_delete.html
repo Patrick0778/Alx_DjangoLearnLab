@@ -1,0 +1,13 @@
+{% extends 'relationship_app/base.html' %} {% block content %}
+<div class="book-delete">
+  <h2>Delete Book</h2>
+  <p>Are you sure you want to delete "{{ object.title }}"?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="delete-button">Confirm Delete</button>
+    <a href="{% url 'relationship_app:book_list' %}" class="cancel-button"
+      >Cancel</a
+    >
+  </form>
+</div>
+{% endblock %}

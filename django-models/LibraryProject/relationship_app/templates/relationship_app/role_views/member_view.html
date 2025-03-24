@@ -1,0 +1,23 @@
+{% extends 'relationship_app/base.html' %} {% block content %}
+<div class="member-dashboard">
+  <h2>{{ title }}</h2>
+  <div class="book-list">
+    <h3>Available Books</h3>
+    <div class="book-grid">
+      {% for book in books %}
+      <div class="book-card">
+        <h4>{{ book.title }}</h4>
+        <p>By {{ book.author.name }}</p>
+        <div class="book-actions">
+          <a href="{% url 'relationship_app:book_detail' book.pk %}"
+            >View Details</a
+          >
+        </div>
+      </div>
+      {% empty %}
+      <p>No books available.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

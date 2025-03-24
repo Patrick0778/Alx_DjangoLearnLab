@@ -1,0 +1,50 @@
+{% extends 'blog/base.html' %}
+{% block content %}
+    <article class="post-detail">
+        <div class="post-metadata">
+            <h2>{{ object.title }}</h2>
+            <small>By {{ object.author }} on {{ object.published_date|date:"F d, Y" }}</small>
+        </div>
+        <div class="post-tags">
+            {% for tag in object.tags.all %}
+                <a href="{% url 'blog:posts-by-tag' tag.slug %}" class="tag">{{ tag.name }}</a>
+            {% endfor %}
+        </div>
+        <div class="post-content">
+            {{ object.content|linebreaks }}
+        </div>
+        {% if user == object.author %}
+        <div class="post-actions">
+            <a class="btn btn-secondary" href="{% url 'blog:post-update' object.pk %}">Edit Post</a>
+            <a class="btn btn-danger" href="{% url 'blog:post-delete' object.pk %}">Delete Post</a>
+        </div>
+        {% endif %}
+        <div class="comments mt-4">
+            <h3>Comments</h3>
+            {% if user.is_authenticated %}
+                <form method="POST" action="{% url 'blog:add-comment' object.pk %}">
+                    {% csrf_token %}
+                    {{ comment_form|crispy }}
+                    <button type="submit" class="btn btn-primary">Add Comment</button>
+                </form>
+            {% endif %}
+            
+            {% for comment in object.comments.all %}
+                <div class="comment card mt-3">
+                    <div class="card-body">
+                        <p class="card-text">{{ comment.content }}</p>
+                        <small class="text-muted">
+                            By {{ comment.author }} on {{ comment.created_at|date:"F d, Y" }}
+                            {% if comment.author == user %}
+                                <a href="{% url 'blog:edit-comment' comment.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <a href="{% url 'blog:delete-comment' comment.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No comments yet.</p>
+            {% endfor %}
+        </div>
+    </article>
+{% endblock content %}

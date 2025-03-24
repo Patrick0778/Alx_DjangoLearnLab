@@ -1,0 +1,26 @@
+{% extends 'relationship_app/base.html' %} {% block content %}
+<div class="librarian-dashboard">
+  <h2>{{ title }}</h2>
+  <div class="library-management">
+    {% for library in libraries %}
+    <div class="library-section">
+      <h3>{{ library.name }}</h3>
+      <h4>Books in Collection:</h4>
+      <ul>
+        {% for book in library.books.all %}
+        <li>{{ book.title }} by {{ book.author.name }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="librarian-actions">
+    <h3>Management Actions</h3>
+    <ul>
+      <li><a href="{% url 'relationship_app:book_add' %}">Add New Book</a></li>
+      <li><a href="{% url 'relationship_app:book_list' %}">Manage Books</a></li>
+      <li><a href="{% url 'relationship_app:library_detail' library.id %}">View Library Details</a></li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

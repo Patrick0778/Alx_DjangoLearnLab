@@ -1,0 +1,30 @@
+{% extends 'relationship_app/base.html' %} {% block content %}
+<div class="book-detail">
+  <h2>{{ book.title }}</h2>
+  <div class="book-info">
+    <p><strong>Author:</strong> {{ book.author.name }}</p>
+    <p><strong>Libraries:</strong></p>
+    <ul>
+      {% for library in book.libraries.all %}
+      <li>{{ library.name }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="book-actions">
+    {% if perms.relationship_app.can_edit_book %}
+    <a href="{% url 'relationship_app:book_edit' book.pk %}" class="edit-button"
+      >Edit Book</a
+    >
+    {% endif %} {% if perms.relationship_app.can_delete_book %}
+    <a
+      href="{% url 'relationship_app:book_delete' book.pk %}"
+      class="delete-button"
+      >Delete Book</a
+    >
+    {% endif %}
+  </div>
+  <a href="{% url 'relationship_app:book_list' %}" class="back-link"
+    >Back to Books</a
+  >
+</div>
+{% endblock %}

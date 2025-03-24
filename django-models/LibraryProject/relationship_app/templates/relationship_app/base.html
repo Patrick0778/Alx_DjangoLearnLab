@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+  </head>
+  <body>
+    <nav class="main-nav">
+      {% if user.is_authenticated %}
+      <span class="user-info"
+        >Welcome, {{ user.username }} ({{ user.profile.role }})</span
+      >
+      <div class="nav-links">
+        {% if user.profile.role == 'ADMIN' %}
+        <a href="{% url 'relationship_app:admin_dashboard' %}"
+          >Admin Dashboard</a
+        >
+        {% elif user.profile.role == 'LIBRARIAN' %}
+        <a href="{% url 'relationship_app:librarian_dashboard' %}"
+          >Library Management</a
+        >
+        {% else %}
+        <a href="{% url 'relationship_app:member_dashboard' %}">Member Area</a>
+        {% endif %}
+        <a href="{% url 'relationship_app:book_list' %}">All Books</a>
+        <a href="{% url 'relationship_app:logout' %}">Logout</a>
+      </div>
+      {% else %}
+      <div class="nav-links">
+        <a href="{% url 'relationship_app:login' %}">Login</a>
+        <a href="{% url 'relationship_app:register' %}">Register</a>
+      </div>
+      {% endif %}
+    </nav>
+
+    <main class="content">{% block content %} {% endblock %}</main>
+  </body>
+</html>

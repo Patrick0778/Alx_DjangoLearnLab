@@ -1,24 +1,37 @@
 from django.urls import path
-from django.contrib.auth.views import LoginView, LogoutView
-from . import views
+from .views.auth_views import login_view, logout_view, register
+from .views.admin_view import admin_view
+from .views.librarian_view import librarian_view
+from .views.member_view import member_view
+from .views.book_views import (
+    BookCreateView, 
+    BookUpdateView, 
+    BookDeleteView,
+    book_list,
+    book_detail,
+    LibraryDetailView
+)
+
+app_name = 'relationship_app'
 
 urlpatterns = [
     # Authentication URLs
-    path("register/", views.register, name="register"),
-    path("login/", LoginView.as_view(template_name="relationship_app/login.html"), name="login"),
-    path("logout/", LogoutView.as_view(template_name="relationship_app/logout.html"), name="logout"),
-
-    # Book Management with Permissions
-    path("books/", views.list_books, name="list_books"),
-    path("add_book/", views.add_book, name="add_book"),  # Fix: Ensuring "add_book/" path is correct
-    path("edit_book/<int:book_id>/", views.edit_book, name="edit_book"),  # Fix: Ensuring "edit_book/" path is correct
-    path("delete_book/<int:book_id>/", views.delete_book, name="delete_book"),  # Already correct
-
-    # Library Details
-    path("library/<int:pk>/", views.LibraryDetailView.as_view(), name="library_detail"),
-
-    # Role-Based Views
-    path("admin-view/", views.admin_view, name="admin_view"),
-    path("librarian-view/", views.librarian_view, name="librarian_view"),
-    path("member-view/", views.member_view, name="member_view"),
+    path('login/', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),
+    path('register/', register, name='register'),
+    
+    # Role-based dashboard URLs
+    path('admin/dashboard/', admin_view, name='admin_dashboard'),
+    path('librarian/dashboard/', librarian_view, name='librarian_dashboard'),
+    path('member/dashboard/', member_view, name='member_dashboard'),
+    
+    # Book management URLs with permissions
+    path('books/', book_list, name='book_list'),
+    path('books/add/', BookCreateView.as_view(), name='book_add'),
+    path('books/<int:pk>/edit/', BookUpdateView.as_view(), name='book_edit'),
+    path('books/<int:pk>/delete/', BookDeleteView.as_view(), name='book_delete'),
+    path('books/<int:pk>/', book_detail, name='book_detail'),
+    
+    # Library URLs
+    path('library/<int:pk>/', LibraryDetailView.as_view(), name='library_detail'),
 ]
