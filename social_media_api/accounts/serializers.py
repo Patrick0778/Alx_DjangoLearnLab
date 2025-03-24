@@ -6,13 +6,13 @@ User = get_user_model()
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
-    
+
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'password', 'bio', 'profile_picture']
 
     def create(self, validated_data):
-        user = User.objects.create_user(
+        user = get_user_model().objects.create_user(  # Using get_user_model().objects.create_user()
             username=validated_data['username'],
             email=validated_data.get('email', ''),
             password=validated_data['password'],
@@ -32,4 +32,3 @@ class UserLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid username or password.")
         token, created = Token.objects.get_or_create(user=user)
         return {'user': user, 'token': token.key}
-# Compare this snippet from social_media_api/social_media_api/urls.py:
