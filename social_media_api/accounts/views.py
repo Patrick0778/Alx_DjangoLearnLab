@@ -2,9 +2,9 @@ from django.shortcuts import render
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
-from rest_framework import status
 from .models import CustomUser
 from .serializers import UserSerializer
 
@@ -74,3 +74,11 @@ class UserProfileView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except CustomUser.DoesNotExist:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+# ========== Appended GenericAPIView Implementation ========== #
+
+class UserListView(generics.ListAPIView):
+    """Retrieve a list of all users."""
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
