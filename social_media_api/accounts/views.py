@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import generics, status
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework import generics, status  # ✅ Added generics
+from rest_framework.permissions import AllowAny, IsAuthenticated  # ✅ Added IsAuthenticated
 from django.contrib.auth import authenticate
 from .models import CustomUser
 from .serializers import UserSerializer
@@ -31,11 +31,11 @@ class LoginView(APIView):
             return Response({'token': token.key, 'user': UserSerializer(user).data})
         return Response({'error': 'Invalid Credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
-# ========== New Code Appended Below ========== #
+# ========== Appending Follow/Unfollow User Views with Required Imports ========== #
 
 class FollowUserView(APIView):
     """API view to follow another user."""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # ✅ Ensuring authentication is required
 
     def post(self, request, user_id):
         try:
@@ -50,7 +50,7 @@ class FollowUserView(APIView):
 
 class UnfollowUserView(APIView):
     """API view to unfollow another user."""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]  
 
     def post(self, request, user_id):
         try:
@@ -63,22 +63,10 @@ class UnfollowUserView(APIView):
         except CustomUser.DoesNotExist:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-class UserProfileView(APIView):
-    """API view to retrieve user profile details."""
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, user_id):
-        try:
-            user = CustomUser.objects.get(id=user_id)
-            serializer = UserSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except CustomUser.DoesNotExist:
-            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-# ========== Appended GenericAPIView Implementation ========== #
+# ========== Appending GenericAPIView Implementation ========== #
 
 class UserListView(generics.ListAPIView):
     """Retrieve a list of all users."""
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]  
