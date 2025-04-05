@@ -1,46 +1,48 @@
-from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 from rest_framework.authtoken.models import Token
 
 User = get_user_model()
 
-class UserRegistrationSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True)
+class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True)
+    token = serializers.CharField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password', 'bio', 'profile_picture']
+        fields = ('username', 'password', 'password2', 'email', 'first_name', 'last_name', 'bio', 'profile_picture', 'token')
+        extra_kwargs = {
+            'email': {'required': True}
+        }
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+        return attrs
 
     def create(self, validated_data):
-        user = get_user_model().objects.create_user(  # Using get_user_model().objects.create_user()
-            username=validated_data['username'],
-            email=validated_data.get('email', ''),
-            password=validated_data['password'],
-            bio=validated_data.get('bio', ''),
-            profile_picture=validated_data.get('profile_picture', None)
+        validated_data.pop('password2')
+        password = validated_data.pop('password')
+        user = get_user_model().objects.create_user(
+            password=password,
+            **validated_data
         )
-        Token.objects.create(user=user)  # Create authentication token
+        # Create token for the user
+        token = Token.objects.create(user=user)
+        user.token = token.key
         return user
 
-class UserLoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
-
-    def validate(self, data):
-        user = authenticate(username=data['username'], password=data['password'])
-        if not user:
-            raise serializers.ValidationError("Invalid username or password.")
-        token, created = Token.objects.get_or_create(user=user)
-        return {'user': user, 'token': token.key}
-
-class UserSerializer(serializers.ModelSerializer):
-    """Serializer for retrieving user details, including follower/following counts."""
+class UserProfileSerializer(serializers.ModelSerializer):
     followers_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'bio', 'profile_picture', 'followers_count', 'following_count']
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'bio', 
+                 'profile_picture', 'followers_count', 'following_count')
+        read_only_fields = ('email',)
 
     def get_followers_count(self, obj):
         return obj.followers.count()
